@@ -15,6 +15,6 @@ steampipe-query
 
 `docker exec -it steampipe-query /bin/bash`
 
-`aws configure sso`
-
 `aws sso login --sso-session $SSO_SESSION_NAME`
+
+`steampipe query queries/lambda-runtime.sql`
