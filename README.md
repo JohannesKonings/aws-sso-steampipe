@@ -11,6 +11,15 @@ docker run --entrypoint /bin/bash -it \
 steampipe-query 
 ```
 
+```bash TMP
+docker run --rm --entrypoint /bin/bash -it \
+--mount type=bind,source="${PWD}/queries",target=/workspace/queries \
+--mount type=bind,source="${PWD}/scripts",target=/workspace/scripts \
+--mount type=bind,source="${PWD}/.env",target=/workspace/.env \
+--name steampipe-query \
+steampipe-query 
+```
+
 `docker start -a steampipe-query`
 
 `docker exec -it steampipe-query /bin/bash`
