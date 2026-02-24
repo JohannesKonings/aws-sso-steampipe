@@ -1,9 +1,9 @@
-FROM ghcr.io/turbot/steampipe
+FROM debian:bookworm-slim
 
-# Setup prerequisites (as root)
-USER root:0
+# Setup prerequisites
 RUN apt-get update -y \
- && apt-get install -y git curl unzip jq python3-pip python3-venv
+ && apt-get install -y git curl unzip jq python3-pip python3-venv \
+ && rm -rf /var/lib/apt/lists/*
 
 # Install AWS CLI
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
@@ -12,14 +12,22 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
  && rm -rf awscliv2.zip ./aws
 
 # Install pipx
-RUN pip3 install pipx
+RUN pip3 install --break-system-packages pipx
 
-# Update steampipe to current version
-RUN /bin/sh -c "$(curl -fsSL https://steampipe.io/install/steampipe.sh)"
+# Create steampipe user
+RUN useradd -m -s /bin/bash steampipe
 
-# Install the aws and steampipe plugins for Steampipe (as steampipe user).
-USER steampipe:0
+# Install Steampipe
+RUN curl -fsSL https://steampipe.io/install/steampipe.sh | sh
+
+# Switch to steampipe user for plugin installation
+USER steampipe
+WORKDIR /home/steampipe
+
+# Install the aws and steampipe plugins for Steampipe
 RUN steampipe plugin install steampipe aws
 
-# Install aws-sso-util for steampipe user
+# Install aws-sso-util
 RUN pipx install aws-sso-util && pipx ensurepath
+
+WORKDIR /workspace
